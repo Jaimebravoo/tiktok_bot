@@ -47,22 +47,39 @@ async def descargar_con_snaptik(link, tipo):
     }
 
     try:
+        async def descargar_con_snaptik(link, tipo):
+    snaptik_url = "https://snaptik.app/es2"
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    data = {
+        "url": link
+    }
+
+    try:
         async with aiohttp.ClientSession() as session:
             async with session.post(snaptik_url, headers=headers, data=data) as response:
                 html = await response.text()
                 soup = BeautifulSoup(html, "html.parser")
-                results = soup.find_all("a", class_="download-link")
+                
+                # Busca los botones de descarga
+                download_links = soup.find_all("a", attrs={"target": "_blank", "rel": "nofollow noopener"})
 
-                if tipo == "normal":
-                    return results[0]["href"] if len(results) >= 1 else None
-                elif tipo == "sinmarca":
-                    return results[1]["href"] if len(results) >= 2 else None
+                if not download_links:
+                    print("No se encontraron links.")
+                    return None
+
+                # Normalmente el primero es sin marca de agua, segundo con marca, tercero audio (puede cambiar)
+                if tipo == "sinmarca":
+                    return download_links[0]["href"] if len(download_links) > 0 else None
+                elif tipo == "normal":
+                    return download_links[1]["href"] if len(download_links) > 1 else download_links[0]["href"]
                 elif tipo == "audio":
-                    return results[2]["href"] if len(results) >= 3 else None
+                    for link in download_links:
+                        if "mp3" in link["href"]:
+                            return link["href"]
+                    return None
 
     except Exception as e:
-        print("Error:", e)
+        print(f"Error en descargar_con_snaptik: {e}")
         return None
-
-if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
