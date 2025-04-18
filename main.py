@@ -35,7 +35,6 @@ async def process_callback(callback_query: types.CallbackQuery):
     else:
         await bot.send_message(callback_query.from_user.id, "No se pudo obtener el video. Intenta más tarde.")
 
-# AQUÍ VA UNA ÚNICA FUNCIÓN limpia:
 async def descargar_con_snaptik(link, tipo):
     snaptik_url = "https://snaptik.app/es2"
     headers = {
@@ -71,6 +70,5 @@ async def descargar_con_snaptik(link, tipo):
         print(f"Error en descargar_con_snaptik: {e}")
         return None  
 
-# Iniciar bot
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
